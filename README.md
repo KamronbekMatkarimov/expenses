@@ -1,0 +1,2 @@
+# Expenses API
+Initial scaffold.
