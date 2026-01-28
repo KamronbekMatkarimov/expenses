@@ -6,3 +6,4 @@ djangorestframework-simplejwt
 Pillow
 python-dotenv
 gunicorn
+whitenoise
