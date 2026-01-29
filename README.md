@@ -32,8 +32,6 @@ Simple JWT (token asosidagi autentifikatsiya)
 SQLite (default) yoki boshqa ma’lumotlar bazasi  
 Email yuborish uchun SMTP (Gmail yoki boshqa)  
 
----
-
 ## 4 Loyihani Ishga Tushirish Bosqichlari
 
 ### 1) Loyihani klonlash

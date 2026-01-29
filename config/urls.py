@@ -25,9 +25,9 @@ def create_admin(request):
             email=email,
             password=password,
         )
-        return HttpResponse("✅ Superuser created: admin / admin12345")
+        return HttpResponse("Superuser created: admin / admin12345")
 
-    return HttpResponse("ℹ️ Superuser already exists")
+    return HttpResponse("Superuser already exists")
 
 
 def healthz(request):
