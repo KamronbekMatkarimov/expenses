@@ -1,7 +1,6 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-
 from django.db.models.deletion import ProtectedError
 
 from .models import Expense, Category
@@ -14,11 +13,17 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
     permission_classes = [IsAuthenticatedAndNotAnalystWrite]
 
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_class = ExpenseFilter
+
     search_fields = ["description"]
-    ordering_fields = ["date", "amount"]
-    ordering = ["-date"]
+
+    ordering_fields = ["id", "date", "amount"]
+    ordering = ["-date", "-id"]
 
     def get_queryset(self):
         user = self.request.user
@@ -34,9 +39,10 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedAndNotAnalystWrite]
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["name"]
-    ordering_fields = ["name"]
+    ordering_fields = ["id", "name"]
     ordering = ["name"]
 
     def get_queryset(self):

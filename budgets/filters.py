@@ -1,32 +1,21 @@
-import django_filters
-from datetime import datetime
+from django_filters import rest_framework as filters
 from .models import Budget, normalize_month
 
+class BudgetFilter(filters.FilterSet):
+    month = filters.DateFilter(method="filter_month")
 
-class BudgetFilter(django_filters.FilterSet):
+    month_from = filters.DateFilter(method="filter_month_from")
+    month_to = filters.DateFilter(method="filter_month_to")
 
-    month = django_filters.CharFilter(method="filter_month")
-    category = django_filters.NumberFilter(field_name="category_id")
+    def filter_month(self, queryset, name, value):
+        return queryset.filter(month=normalize_month(value))
+
+    def filter_month_from(self, queryset, name, value):
+        return queryset.filter(month__gte=normalize_month(value))
+
+    def filter_month_to(self, queryset, name, value):
+        return queryset.filter(month__lte=normalize_month(value))
 
     class Meta:
         model = Budget
-        fields = ["category", "month"]
-
-    def filter_month(self, queryset, name, value):
-        value = (value or "").strip()
-        if not value:
-            return queryset
-
-        try:
-            dt = datetime.strptime(value, "%Y-%m")
-            month_date = normalize_month(dt.date())
-            return queryset.filter(month=month_date)
-        except ValueError:
-            pass
-
-        try:
-            dt = datetime.strptime(value, "%Y-%m-%d")
-            month_date = normalize_month(dt.date())
-            return queryset.filter(month=month_date)
-        except ValueError:
-            return queryset.none()
+        fields = ["month", "month_from", "month_to", "category"]
