@@ -1,7 +1,8 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
-from django.db.models import ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
+
+from django.db.models.deletion import ProtectedError
 
 from .models import Expense, Category
 from .serializers import ExpenseSerializer, CategorySerializer
@@ -22,7 +23,6 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         qs = Expense.objects.select_related("category")
-
         if user.is_staff:
             return qs
         return qs.filter(user=user)
