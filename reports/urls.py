@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import MonthlyReportView, MonthlyReportEmailView
+from .views import ReportsView, ReportEmailView
 
 urlpatterns = [
-    path("", MonthlyReportView.as_view(), name="monthly-report"),
-    path("email/", MonthlyReportEmailView.as_view(), name="monthly-report-email"),
+    path("reports/", ReportsView.as_view(), name="reports"),
+    path("reports/email/", ReportEmailView.as_view(), name="reports-email"),
 ]
