@@ -1,8 +1,10 @@
+# budgets/views.py
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Budget
 from .serializers import BudgetSerializer
+from .filters import BudgetFilter
 from expenses.permissions import IsAuthenticatedAndNotAnalystWrite
 
 
@@ -11,7 +13,7 @@ class BudgetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedAndNotAnalystWrite]
 
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ["category", "month"]
+    filterset_class = BudgetFilter
     ordering_fields = ["month", "amount"]
     ordering = ["-month"]
 

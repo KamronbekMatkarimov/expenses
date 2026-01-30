@@ -2,24 +2,32 @@ import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 
-
 class Command(BaseCommand):
-    help = "Create a superuser if none exists (safe for deploy)."
+    help = "Create or update superuser from env vars (free Render friendly)"
 
     def handle(self, *args, **options):
         User = get_user_model()
 
         username = os.getenv("DJANGO_SUPERUSER_USERNAME", "admin")
         email = os.getenv("DJANGO_SUPERUSER_EMAIL", "admin@example.com")
-        password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "admin12345")
+        password = os.getenv("DJANGO_SUPERUSER_PASSWORD")
 
-        if User.objects.filter(is_superuser=True).exists():
-            self.stdout.write(self.style.WARNING("Superuser already exists. Skipping."))
+        if not password:
+            self.stdout.write(self.style.WARNING("No DJANGO_SUPERUSER_PASSWORD set"))
             return
 
-        User.objects.create_superuser(
+        user, created = User.objects.get_or_create(
             username=username,
-            email=email,
-            password=password,
+            defaults={"email": email},
         )
-        self.stdout.write(self.style.SUCCESS(f"Superuser created: {username}"))
+
+        user.is_staff = True
+        user.is_superuser = True
+        user.email = email
+        user.set_password(password)
+        user.save()
+
+        if created:
+            self.stdout.write(self.style.SUCCESS(f"Superuser created: {username}"))
+        else:
+            self.stdout.write(self.style.SUCCESS(f"Superuser updated: {username}"))

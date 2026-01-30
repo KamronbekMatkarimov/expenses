@@ -6,9 +6,6 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-# ======================
-# CORE
-# ======================
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
@@ -21,9 +18,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://expenses-api-akem.onrender.com",
 ]
 
-# ======================
-# APPS
-# ======================
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -42,13 +36,9 @@ INSTALLED_APPS = [
     "reports",
 ]
 
-# ======================
-# MIDDLEWARE
-# ======================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # WhiteNoise MUST be right after SecurityMiddleware
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -59,15 +49,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# ======================
-# URLS / WSGI
-# ======================
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-# ======================
-# TEMPLATES
-# ======================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -84,9 +68,6 @@ TEMPLATES = [
     },
 ]
 
-# ======================
-# DATABASE
-# ======================
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
@@ -98,9 +79,6 @@ DATABASES = {
     }
 }
 
-# ======================
-# AUTH
-# ======================
 AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -108,21 +86,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
 ]
 
-# ======================
-# I18N
-# ======================
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = os.getenv("TIME_ZONE", "UTC")
 USE_I18N = True
 USE_TZ = True
 
-# ======================
-# STATIC & MEDIA
-# ======================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# ❗ ВАЖНО: НЕ manifest
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "/media/"
@@ -130,9 +101,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ======================
-# DRF
-# ======================
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -148,26 +116,42 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": int(os.getenv("PAGE_SIZE", "20")),
 }
 
-# ======================
-# JWT
-# ======================
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-# ======================
-# SWAGGER
-# ======================
 SPECTACULAR_SETTINGS = {
     "TITLE": "Expenses API",
     "DESCRIPTION": "Expenses, budgets, reports",
     "VERSION": "1.0.0",
+
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+        "displayRequestDuration": True,
+    },
+
+    "COMPONENT_SPLIT_REQUEST": True,
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+    "SECURITY": [{"bearerAuth": []}],
+
+    "TAGS": [
+        {"name": "users", "description": "Registration/login/profile"},
+        {"name": "expenses", "description": "Categories & expenses"},
+        {"name": "budgets", "description": "Budget limits per category/month"},
+        {"name": "reports", "description": "Monthly reports + CSV export"},
+    ],
 }
 
-# ======================
-# EMAIL
-# ======================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))

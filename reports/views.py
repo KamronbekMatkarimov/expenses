@@ -37,10 +37,11 @@ def build_report(user, year: int, month: int):
     )
 
     grouped = expenses_qs.values("category__name").annotate(spent=Sum("amount")).order_by()
-
     total = expenses_qs.aggregate(total=Sum("amount"))["total"] or 0
 
-    budgets_qs = Budget.objects.filter(user=user, month__year=year, month__month=month).select_related("category")
+    budgets_qs = Budget.objects.filter(
+        user=user, month__year=year, month__month=month
+    ).select_related("category")
     budget_limits = {b.category.name: b.amount for b in budgets_qs}
 
     category_expenses = {}
@@ -102,7 +103,7 @@ class MonthlyReportView(APIView):
 
     def get(self, request):
         month_str = request.query_params.get("month")
-        export = request.query_params.get("export")
+        export = (request.query_params.get("export") or "").lower().strip()
 
         if not month_str:
             return Response(
@@ -121,8 +122,9 @@ class MonthlyReportView(APIView):
 
         if export == "csv":
             csv_text = report_to_csv_text(report)
-            response = HttpResponse(csv_text, content_type="text/csv")
-            response["Content-Disposition"] = 'attachment; filename="report.csv"'
+            filename = f"report_{month_str}.csv"
+            response = HttpResponse(csv_text, content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
             return response
 
         return Response(report)
