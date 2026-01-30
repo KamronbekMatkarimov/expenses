@@ -25,6 +25,18 @@ class ExpenseSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "category_name"]
 
+    def validate_amount(self, value):
+        if value is None:
+            raise serializers.ValidationError("Сумма обязательна")
+        if value <= 0:
+            raise serializers.ValidationError("Сумма расхода должна быть больше 0")
+        return value
+
+    def validate_description(self, value):
+        if value is not None and not str(value).strip():
+            raise serializers.ValidationError("Описание не может быть пустым")
+        return value
+
     def validate_category(self, category):
         request = self.context["request"]
         if request.user.is_staff:
